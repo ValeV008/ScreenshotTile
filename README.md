@@ -201,3 +201,6 @@ Some miscellaneous files (mostly images) that don't need to be in the main repos
 ---
 
 [![updatestar](https://updatestar.cuzi.workers.dev/screenshot-tile-no-root/)](https://screenshot-tile-no-root.updatestar.com/)
+
+[![updatestar](https://www.updatestar.com/img/rating_4stars.png)](https://screenshot-tile-no-root.updatestar.com/)
+
