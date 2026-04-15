@@ -56,6 +56,10 @@ This app supports three different methods to take screenshots
 ### Post-processing scanner (Android 10 focus)
 For native/system screenshots that are first saved as PNG, the app now includes a MediaStore-based post-processing scanner:
 
+Requirements:
+*   Storage permission (Android 10)
+*   User-selected screenshots folder with persisted SAF read/write permission (Storage directory setting)
+
 * Detects newly added PNG screenshots
 * Converts PNG -> JPG
 * Writes EXIF date/time metadata on the JPG
