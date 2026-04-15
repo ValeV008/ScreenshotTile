@@ -13,6 +13,8 @@ import android.content.pm.PackageInfo
 import android.content.pm.PackageManager
 import android.content.pm.VersionedPackage
 import android.graphics.Bitmap
+import android.graphics.Canvas
+import android.graphics.Color
 import android.graphics.Paint
 import android.graphics.Point
 import android.graphics.Rect
@@ -41,6 +43,7 @@ import androidx.core.graphics.toColorInt
 import androidx.core.net.toUri
 import androidx.core.os.LocaleListCompat
 import androidx.documentfile.provider.DocumentFile
+import androidx.exifinterface.media.ExifInterface
 import androidx.fragment.app.DialogFragment
 import com.burhanrashid52.photoediting.EditImageActivity
 import com.github.cvzi.screenshottile.App
@@ -676,10 +679,19 @@ fun saveBitmapToFile(
     // Add to gallery
     return when {
         result.imageFile != null -> {
+            var imageFile = result.imageFile
+            var mimeType = compressionOptions.mimeType
+            if (compressionOptions.fileExtension.lowercase(Locale.US) == "png") {
+                val convertedFile = ScreenshotPostProcessingScanner.convertNow(context, imageFile)
+                if (convertedFile != null) {
+                    imageFile = convertedFile
+                    mimeType = "image/jpeg"
+                }
+            }
             if (!useAppData) {
                 addImageToGallery(
                     context,
-                    result.imageFile.absolutePath,
+                    imageFile.absolutePath,
                     context.getLocalizedString(R.string.file_title),
                     context.formatLocalizedString(
                         R.string.file_description,
@@ -690,28 +702,30 @@ fun saveBitmapToFile(
                             date
                         )
                     ),
-                    compressionOptions.mimeType,
+                    mimeType,
                     date,
                     Point(bitmap.width, bitmap.height)
                 )
                 App.getInstance().prefManager.screenshotHistoryAdd(
                     PrefManager.ScreenshotHistoryItem(
-                        Uri.fromFile(result.imageFile),
+                        Uri.fromFile(imageFile),
                         Date(),
-                        result.imageFile
+                        imageFile
                     )
                 )
             }
-            SaveImageResultSuccess(bitmap, compressionOptions.mimeType, result.imageFile)
+            SaveImageResultSuccess(bitmap, mimeType, imageFile)
         }
 
         result.uri != null -> {
+            var imageUri = result.uri
+            var mimeType = compressionOptions.mimeType
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
                 result.contentValues?.run {
                     this.clear()
                     this.put(Images.ImageColumns.IS_PENDING, 0)
                     try {
-                        context.contentResolver.update(result.uri, this, null, null)
+                        context.contentResolver.update(imageUri, this, null, null)
                     } catch (e: UnsupportedOperationException) {
                         Log.e(UTILSKT, e.stackTraceToString())
                     } catch (e: IllegalStateException) {
@@ -719,18 +733,25 @@ fun saveBitmapToFile(
                     }
                 }
             }
+            if (compressionOptions.fileExtension.lowercase(Locale.US) == "png") {
+                val convertedUri = ScreenshotPostProcessingScanner.convertNow(context, imageUri)
+                if (convertedUri != null) {
+                    imageUri = convertedUri
+                    mimeType = "image/jpeg"
+                }
+            }
             App.getInstance().prefManager.screenshotHistoryAdd(
                 PrefManager.ScreenshotHistoryItem(
-                    result.uri,
+                    imageUri,
                     Date(),
                     null
                 )
             )
             SaveImageResultSuccess(
                 bitmap,
-                compressionOptions.mimeType,
+                mimeType,
                 null,
-                result.uri,
+                imageUri,
                 filename,
                 result.dummyPath
             )
@@ -875,7 +896,6 @@ fun saveImageToFile(
         directory
     )
 }
-
 
 /**
  * Find the cache directory with maximum free space

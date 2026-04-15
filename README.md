@@ -53,6 +53,16 @@ The internal image editor and image library used is [github.com/burhanrashid52/P
 
 This app supports three different methods to take screenshots
 
+### Post-processing scanner (Android 10 focus)
+For native/system screenshots that are first saved as PNG, the app now includes a MediaStore-based post-processing scanner:
+
+* Detects newly added PNG screenshots
+* Converts PNG -> JPG
+* Writes EXIF date/time metadata on the JPG
+* Removes the original PNG after successful conversion
+  * First tries normal MediaStore delete
+  * If blocked, falls back to SAF tree delete when a storage directory is configured
+
 ### Legacy/Original method <img src="/docs/imgs/SwitchLegacyMethod.png" alt="Legacy method switch on" height="25"/>
 This method uses the screen recording/screen cast capabilities of Android to record a single frame.
 

@@ -38,6 +38,7 @@ import com.github.cvzi.screenshottile.services.BasicForegroundService;
 import com.github.cvzi.screenshottile.services.ScreenshotAccessibilityService;
 import com.github.cvzi.screenshottile.services.ScreenshotTileService;
 import com.github.cvzi.screenshottile.utils.PrefManager;
+import com.github.cvzi.screenshottile.utils.ScreenshotPostProcessingScanner;
 import com.github.cvzi.screenshottile.utils.Texts;
 
 import kotlin.Unit;
@@ -326,6 +327,7 @@ public class App extends Application implements AppFunctionConfiguration.Provide
         applyDayNightMode();
 
         cleanUpAppData(this);
+        ScreenshotPostProcessingScanner.start(this);
     }
 
     @NonNull

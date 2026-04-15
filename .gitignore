@@ -1,15 +1,49 @@
-TODO.txt
-*.iml
-.gradle
-/local.properties
-/gradle.properties
+# OS / editor
 .DS_Store
-/build
-/app/release
-/captures
-.externalNativeBuild
-/.idea/
-/projectFilesBackup/
-fastlane/Appfile
-/.vs/
-/.kotlin/
+Thumbs.db
+.idea/
+.vs/
+*.iml
+*.ipr
+*.iws
+projectFilesBackup/
+
+# Gradle / Kotlin
+.gradle/
+.kotlin/
+build/
+**/build/
+captures/
+.externalNativeBuild/
+.cxx/
+
+# Local machine config
+local.properties
+.env
+.env.*
+!.env.example
+
+# Signing keys / certificates (never commit)
+*.jks
+*.keystore
+*.p12
+*.pem
+*.key
+
+# Android build artifacts
+*.apk
+*.ap_
+*.aab
+*.aar
+*.dex
+*.class
+app/release/
+gradle/gradle-daemon-jvm.properties
+
+# Logs / temp
+*.log
+*.tmp
+*.swp
+
+# Keep repo clean
+TODO.txt

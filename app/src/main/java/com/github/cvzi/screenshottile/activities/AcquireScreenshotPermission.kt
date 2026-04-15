@@ -63,6 +63,14 @@ class AcquireScreenshotPermission : BaseActivity() {
                 Manifest.permission.WRITE_EXTERNAL_STORAGE,
                 packageName
             ) != PackageManager.PERMISSION_GRANTED)
+            || (Build.VERSION.SDK_INT in Build.VERSION_CODES.Q..Build.VERSION_CODES.S_V2 && packageManager.checkPermission(
+                Manifest.permission.READ_EXTERNAL_STORAGE,
+                packageName
+            ) != PackageManager.PERMISSION_GRANTED)
+            || (Build.VERSION.SDK_INT == Build.VERSION_CODES.Q && packageManager.checkPermission(
+                Manifest.permission.WRITE_EXTERNAL_STORAGE,
+                packageName
+            ) != PackageManager.PERMISSION_GRANTED)
             || (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU && packageManager.checkPermission(
                 Manifest.permission.POST_NOTIFICATIONS,
                 packageName
@@ -71,6 +79,15 @@ class AcquireScreenshotPermission : BaseActivity() {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
                 val permissions = arrayOf(Manifest.permission.POST_NOTIFICATIONS)
                 requestPermissions(permissions, NOTIFICATIONS_REQUEST_CODE)
+            } else if (Build.VERSION.SDK_INT == Build.VERSION_CODES.Q) {
+                val permissions = arrayOf(
+                    Manifest.permission.READ_EXTERNAL_STORAGE,
+                    Manifest.permission.WRITE_EXTERNAL_STORAGE
+                )
+                requestPermissions(permissions, WRITE_REQUEST_CODE)
+            } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                val permissions = arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE)
+                requestPermissions(permissions, WRITE_REQUEST_CODE)
             } else {
                 val permissions = arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE)
                 requestPermissions(permissions, WRITE_REQUEST_CODE)
@@ -137,10 +154,14 @@ class AcquireScreenshotPermission : BaseActivity() {
     ) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         if (WRITE_REQUEST_CODE == requestCode) {
-            if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+            val allGranted = grantResults.isNotEmpty() &&
+                grantResults.all { it == PackageManager.PERMISSION_GRANTED }
+            if (allGranted) {
                 if (BuildConfig.DEBUG) Log.v(
                     TAG,
-                    "onRequestPermissionsResult() WRITE_EXTERNAL_STORAGE is PERMISSION_GRANTED"
+                    "onRequestPermissionsResult() storage permissions are PERMISSION_GRANTED: ${
+                        permissions.joinToString()
+                    }"
                 )
                 if (askedForStoragePermission) {
                     App.getInstance().screenshot(this)
@@ -148,7 +169,7 @@ class AcquireScreenshotPermission : BaseActivity() {
             } else {
                 Log.w(
                     TAG,
-                    "onRequestPermissionsResult() Expected PERMISSION_GRANTED for WRITE_EXTERNAL_STORAGE"
+                    "onRequestPermissionsResult() Expected PERMISSION_GRANTED for ${permissions.getOrNull(0)}"
                 )
                 toastMessage(
                     getLocalizedString(R.string.permission_missing_external_storage),
